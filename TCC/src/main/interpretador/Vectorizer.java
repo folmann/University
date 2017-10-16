@@ -1,37 +1,36 @@
-package old;
+package main.interpretador;
 
 import java.io.FileInputStream;
+
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
-import main.interpretador.TFIDFCalculator;
 import models.artigo.Artigo;
 import models.artigo.ArtigoDAO;
 import models.palavra.Palavra;
 import models.palavra.PalavraDAO;
 
-public class VectorizerOriginal {
+public class Vectorizer {
 
 	private String stopwordsPath;
 	private TFIDFCalculator calculator = new TFIDFCalculator();
 	private PalavraDAO palavraDAO = new PalavraDAO();
 
-	// Construtor, recebe a lista de StopWords
-	public VectorizerOriginal(String stopwordsPath) {
+	/** Construtor, recebe a lista de StopWords **/
+	public Vectorizer(String stopwordsPath) {
 		this.stopwordsPath = stopwordsPath;
 	}
 
-	/** ========================= **/
+
 	/** Limpa e TOKENIZA o Texto **/
 	public List<String> tokenizar(String texto) {
 		// Remove caracteres especiais, mas mantem letras, numeros e acentos
 		texto = texto.replaceAll("-", " ");
-		texto = texto.replaceAll("[^a-zA-Z0-9 „ı√’·¡‡¿ƒ‰È…ÌÕÛ”˙⁄‚ÍÓÙ˚¬ Œ‘€‡ËÏÚ˘¿»Ã“Ÿ‰ÎÔˆ¸ƒÀœ÷‹Á«∫™π≤≥]", "");
+		texto = texto.replaceAll("[^a-zA-Z „ı√’·¡‡¿ƒ‰È…ÌÕÛ”˙⁄‚ÍÓÙ˚¬ Œ‘€‡ËÏÚ˘¿»Ã“Ÿ‰ÎÔˆ¸ƒÀœ÷‹Á«∫™π≤≥]", "");
 		texto = texto.replaceAll("\\s+", " ");
 		texto = texto.trim();
 
@@ -39,14 +38,15 @@ public class VectorizerOriginal {
 		String[] textSplit = texto.split(" ");
 
 		// Transforma o vetor em um array
-		HashSet<String> palavrasHashSet = new HashSet<String>(Arrays.asList(textSplit));
-		List<String> vetorPalavras = new ArrayList<String>(palavrasHashSet);
-
+		List<String> vetorPalavras = new ArrayList<String>(Arrays.asList(textSplit));
+		vetorPalavras.remove(" ");
+		vetorPalavras.remove("");
+		
 		// Retorna um array de palavras
 		return vetorPalavras;
 	}
+	
 
-	/** ========================= **/
 	/** Remove todas as StopWords **/
 	public List<String> removerStopWords(List<String> document) {
 
@@ -55,7 +55,7 @@ public class VectorizerOriginal {
 		// Abre o arquivo com as stopwords
 		try {
 			URL url = getClass().getResource(stopwordsPath);
-			s = new Scanner(new FileInputStream(url.getPath()), "UTF-8");
+			s = new Scanner(new FileInputStream(url.getPath()));
 		} catch (FileNotFoundException e) {
 			System.out.println("Erro: nao foi possivel carregar as StopWords.");
 			e.printStackTrace();
@@ -73,15 +73,13 @@ public class VectorizerOriginal {
 				document.remove(stopword);// remove do texto
 			}
 		}
-
 		return document;
 	}
 
 	/**
 	 * Vetorizar: limpa os textos armazenados no banco de dados transforma cada
-	 * texto em uma lista de tokens(palavras) cria uma lista com todos os
-	 * artigos ja tokenizados (lista de uma lista de palavras) e por fim calcula
-	 * o TF-IDF
+	 * texto em uma lista de tokens(palavras) cria uma lista com todos os artigos ja
+	 * tokenizados (lista de uma lista de palavras) e por fim calcula o TF-IDF
 	 **/
 	public List<List<String>> vetorizarBanco() {
 
@@ -102,8 +100,9 @@ public class VectorizerOriginal {
 			// Tira as Stopwords
 			tokens = this.removerStopWords(tokens);
 
-			// Ultima PosiÁ„o È o tÌtulo do artigo
+			// As 2 ˙ltimas posiÁıes s„o o tÌtulo e id do artigo
 			tokens.add(artigo.getTitulo());
+			tokens.add(""+artigo.getId());
 
 			// Adicionar o artigo vetorizado na lista de documentos(artigos
 			// tokenizados)
@@ -112,45 +111,59 @@ public class VectorizerOriginal {
 		return documents;
 	}
 
-	/** ========================= **/
-	/** Calcula o TF-IDF de cada palavra **/
+
+	/** Calcula o TF de cada palavra **/
 	public void calculaTF(List<List<String>> documents) {
 
 		// Para cada documento(artigo tokenizado) da lista
 		for (List<String> document : documents) {
-			System.out.println(document.get(document.size() - 1));
-		
-			// Para cada palavra da lista, exceto a ultima posicao (que È o
-			// tÌtulo do artigo)
-			for (String word : document.subList(0, document.size() - 1)) {
+			//System.out.println(document.get(document.size() - 2));
+
+			// Para cada palavra da lista, exceto as 2 ultimas posicıes 
+			// (que s„o o tÌtulo(-2) e o id(-1) do artigo)
+			for (String word : document.subList(0, document.size() - 2)) {
 
 				// Monta o objeto Palavra(token)
 				Palavra palavra = new Palavra();
 				palavra.setPalavra(word);
-				palavra.setArtigo(document.get(document.size() - 1));
+				palavra.setArtigo(document.get(document.size() - 2));
+				palavra.setArtigoId(Long.parseLong(document.get(document.size() - 1)));
 
-				// Se ainda nao existe no banco (nao foi calculado)
+				// Se Palavra n„o for vazia
 				if (!(palavra.getPalavra().equals(""))) {
-					if (palavraDAO.pesquisarPalavra(palavra).getPalavra() == null) {
+					
+					// Calcula o TF-IDF
+					double tf = calculator.tf(document, word);
+					palavra.setTf(tf);
 
-						// Calcula o TF-IDF
-						double tf = calculator.tf(document, word);
-						double idf = calculator.idf(documents, word);
-						double tfidf = tf * idf;
-
-						palavra.setTf(tf);
-						palavra.setIdf(idf);
-						palavra.setTfidf(tfidf);
-
-						// Adiciona no Banco SQL
-						palavraDAO.adicionarPalavra(palavra);
-					}
+					// Adiciona no Banco SQL
+					palavraDAO.adicionarPalavra(palavra);
 				}
-			}
+			} 
 
 		}
 	}
-	
 
-	
+
+	/** Calcula o TF-IDF de cada palavra **/
+	public void calculaTFIDF() {
+		PalavraDAO palavraDAO = new PalavraDAO();
+
+		// Pega todas as palavras do banco
+		List<Palavra> palavras = palavraDAO.selectAlmostAll();
+
+		// Para cada Palavra
+		for (Palavra palavra : palavras) {
+			// Calcula o IDF
+			int n = palavraDAO.selectCountPalavra(palavra.getPalavra());
+			double idf = Math.log(palavraDAO.selectCountAllPalavra() / n);
+			// Calcula o TFIDF
+			double tfidf = palavra.getTf() * idf;
+			// Salva no banco
+			palavra.setIdf(idf);
+			palavra.setTfidf(tfidf);
+			palavraDAO.alterarPalavra(palavra);
+		}
+	}	
+
 }

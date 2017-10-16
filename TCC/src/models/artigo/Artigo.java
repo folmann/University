@@ -3,8 +3,8 @@ package models.artigo;
 public class Artigo {
 	
 	private Long id;
-	private String title;
-	private String text;
+	private String titulo;
+	private String texto;
 	
 	public Long getId() {
 		return id;
@@ -12,18 +12,16 @@ public class Artigo {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getTitle() {
-		return title;
+	public String getTitulo() {
+		return titulo;
 	}
-	public void setTitle(String title) {
-		this.title = title;
+	public void setTitulo(String titulo) {
+		this.titulo = titulo;
 	}
-	public String getText() {
-		return text;
+	public String getTexto() {
+		return texto;
 	}
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	
+	public void setTexto(String texto) {
+		this.texto = texto;
+	}	
 }

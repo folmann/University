@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Pessoa {
 
+	private Long id;
 	private String nome;
 	private String curriculo;
 	private String instituicao;
@@ -12,6 +13,12 @@ public class Pessoa {
 	private List<String> areasConhecimento;
 	private HashMap<String, Double> vetorConceitos;
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getNome() {
 		return nome;
 	}
@@ -43,9 +50,10 @@ public class Pessoa {
 		this.areasConhecimento = areasConhecimento;
 	}
 	
-	public void setVetorConceitos() {
+	public void setKeyWords() {
 		this.vetorConceitos = new HashMap<>();
 		this.areasConhecimento.addAll(this.palavrasChave);
+		this.areasConhecimento.add(this.instituicao);
 		for (String conceito : areasConhecimento) {
 			if (vetorConceitos.containsKey(conceito)) {
 				vetorConceitos.put(conceito, 1.0);
@@ -55,7 +63,7 @@ public class Pessoa {
 		}			
 	}
 	
-	public HashMap<String, Double> getVetorConceitos() {
+	public HashMap<String, Double> getKeyWords() {
 		return vetorConceitos;
 	}
 	

@@ -1,0 +1,42 @@
+{
+	"nodes": [
+		{"id": "Ana Cristina Barreiras Kochem Vendramin", "group": 1},
+		{"id": "Anelise Munaretto Fonseca", "group": 1},
+		{"id": "Inácio Andruski Guimarães", "group": 1},
+		{"id": "João Alberto Fabro", "group": 1},
+		{"id": "Maria Claudia Figueiredo Pereira Emer", "group": 1},
+		{"id": "Yasmin Livia Queiroz", "group": 1},
+		{"id": "Ricardo Dutra da Silva", "group": 1},
+		{"id": "Thiago Henrique Silva", "group": 1}
+	],
+	"links": [
+{"source": "Ana Cristina Barreiras Kochem Vendramin", "target": "Anelise Munaretto Fonseca", "value": 0.6987024494400659},
+{"source": "Ana Cristina Barreiras Kochem Vendramin", "target": "Inácio Andruski Guimarães", "value": 0.47974861141928293},
+{"source": "Ana Cristina Barreiras Kochem Vendramin", "target": "João Alberto Fabro", "value": 0.6928465180980945},
+{"source": "Ana Cristina Barreiras Kochem Vendramin", "target": "Maria Claudia Figueiredo Pereira Emer", "value": 0.5088007672852177},
+{"source": "Ana Cristina Barreiras Kochem Vendramin", "target": "Yasmin Livia Queiroz", "value": 0.237836240273662},
+{"source": "Ana Cristina Barreiras Kochem Vendramin", "target": "Ricardo Dutra da Silva", "value": 0.4424087864274526},
+{"source": "Ana Cristina Barreiras Kochem Vendramin", "target": "Thiago Henrique Silva", "value": 0.3285008094457632},
+{"source": "Anelise Munaretto Fonseca", "target": "Inácio Andruski Guimarães", "value": 0.428167981581489},
+{"source": "Anelise Munaretto Fonseca", "target": "João Alberto Fabro", "value": 0.5198810271802881},
+{"source": "Anelise Munaretto Fonseca", "target": "Maria Claudia Figueiredo Pereira Emer", "value": 0.41621734952164285},
+{"source": "Anelise Munaretto Fonseca", "target": "Yasmin Livia Queiroz", "value": 0.2519322232418121},
+{"source": "Anelise Munaretto Fonseca", "target": "Ricardo Dutra da Silva", "value": 0.3307839413453309},
+{"source": "Anelise Munaretto Fonseca", "target": "Thiago Henrique Silva", "value": 0.2771669078032539},
+{"source": "Inácio Andruski Guimarães", "target": "João Alberto Fabro", "value": 0.4639959345818205},
+{"source": "Inácio Andruski Guimarães", "target": "Maria Claudia Figueiredo Pereira Emer", "value": 0.4775085662835034},
+{"source": "Inácio Andruski Guimarães", "target": "Yasmin Livia Queiroz", "value": 0.1126872339638022},
+{"source": "Inácio Andruski Guimarães", "target": "Ricardo Dutra da Silva", "value": 0.29885071975415994},
+{"source": "Inácio Andruski Guimarães", "target": "Thiago Henrique Silva", "value": 0.2500551873949884},
+{"source": "João Alberto Fabro", "target": "Maria Claudia Figueiredo Pereira Emer", "value": 0.5791745553411659},
+{"source": "João Alberto Fabro", "target": "Yasmin Livia Queiroz", "value": 0.18904461423379232},
+{"source": "João Alberto Fabro", "target": "Ricardo Dutra da Silva", "value": 0.4209072273583504},
+{"source": "João Alberto Fabro", "target": "Thiago Henrique Silva", "value": 0.30949025515254425},
+{"source": "Maria Claudia Figueiredo Pereira Emer", "target": "Yasmin Livia Queiroz", "value": 0.09644532060412367},
+{"source": "Maria Claudia Figueiredo Pereira Emer", "target": "Ricardo Dutra da Silva", "value": 0.4627806879968329},
+{"source": "Maria Claudia Figueiredo Pereira Emer", "target": "Thiago Henrique Silva", "value": 0.307033828168659},
+{"source": "Yasmin Livia Queiroz", "target": "Ricardo Dutra da Silva", "value": 0.13699472502802854},
+{"source": "Yasmin Livia Queiroz", "target": "Thiago Henrique Silva", "value": 0.1441075789946116},
+{"source": "Ricardo Dutra da Silva", "target": "Thiago Henrique Silva", "value": 0.3488365870578979}
+	]
+}

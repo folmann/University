@@ -353,58 +353,113 @@ public class PalavraDAO {
 		return topConcepts;
 	}
 
-	public HashMap<String, Double> pesquisarAllTopConcepts(List<String> tokens) {
+	public HashMap<String, Double> pesquisarAllTopConceptsUnion(List<String> tokens) {
 
 		HashMap<String, Double> vetorFrequenciaConceitos = new HashMap<String, Double>();
-		int size = tokens.size();
-		int i = 0;
+
+		int qtd = 0;
 		String artigo = "";
-		Double tfidf = 0.0;
+		String query = "SELECT COUNT(artigo) AS qtd, artigo FROM (";
 
-		for (String token : tokens) {
+		query = query + "(SELECT artigo,palavra,tfidf FROM topConcepts WHERE LOWER(palavra) LIKE '" + tokens.get(0)
+				+ "' ORDER BY tfidf DESC LIMIT 20)";
+		for (String token : tokens.subList(1, tokens.size())) {
+			query = query + "UNION (SELECT artigo,palavra,tfidf FROM topConcepts WHERE LOWER(palavra) LIKE '" + token
+					+ "' ORDER BY tfidf DESC LIMIT 20)";
+			//incrementaFrequenciaVetorConceitos(vetorFrequenciaConceitos, token, 1.0);
+			/*if (!resultSet.next()) {
+				artigo = token;
+				incrementaFrequenciaVetorConceitos(vetorFrequenciaConceitos, artigo, 1.0);
+				System.out.println("Palavra nao encontrada: " + artigo);
+				}
+			}*/
+		}
+		query = query + ") AS a GROUP BY artigo ORDER BY qtd DESC;";
+		
+		try {
+			//System.out.println("\n...Pegando conceitos...\n\n");
+			connection = getConnection();
+			ptmt = connection.prepareStatement(query);
+			resultSet = ptmt.executeQuery();
+			
+			while (resultSet.next()) {
+				artigo = resultSet.getString("artigo");
+				qtd = resultSet.getInt("qtd");					
+				incrementaFrequenciaVetorConceitos(vetorFrequenciaConceitos, artigo, 0.0+qtd);
+				//System.out.println(artigo + ": " + qtd);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
 			try {
-				String query = "SELECT artigo,palavra,tfidf FROM topConcepts WHERE LOWER(palavra) LIKE ? ORDER BY tfidf DESC LIMIT 5;";
-				connection = getConnection();
-				ptmt = connection.prepareStatement(query);
-				ptmt.setString(1, '%' + token + '%');
-				resultSet = ptmt.executeQuery();
-
-				if (!resultSet.next()) {
-					artigo = token;
-					incrementaFrequenciaVetorConceitos(vetorFrequenciaConceitos, artigo, 1.0);
-					System.out.println("Palavra nao encontrada: " + artigo);
+				if (resultSet != null) {
+					resultSet.close();
 				}
-
-				while (resultSet.next()) {
-					artigo = resultSet.getString("artigo");
-					tfidf = resultSet.getDouble("tfidf");
-					incrementaFrequenciaVetorConceitos(vetorFrequenciaConceitos, artigo, tfidf);
+				if (ptmt != null) {
+					ptmt.close();
 				}
-
-				i++;
-				System.out.println("Calculando conceitos (" + i + "/" + size + ").");
+				if (connection != null) {
+					connection.close();
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
-			} finally {
-				try {
-					if (resultSet != null) {
-						resultSet.close();
-					}
-					if (ptmt != null) {
-						ptmt.close();
-					}
-					if (connection != null) {
-						connection.close();
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		return vetorFrequenciaConceitos;
 	}
+	
+	public HashMap<String, Double> pesquisarAllTopConcepts(List<String> tokens) {
+		HashMap<String, Double> vetorFrequenciaConceitos = new HashMap<String, Double>();
+		try {			
+			connection = getConnection();
+			String query = "";
+			String artigo = "";
+			boolean achouResultado = false;
+			
+			for (String token : tokens) {
+				try {
+					query = "SELECT artigo,palavra,tfidf FROM topConcepts WHERE LOWER(palavra) = ? ORDER BY tfidf DESC LIMIT 20";
+					ptmt = connection.prepareStatement(query);
+					ptmt.setString(1, token.toLowerCase());
+					resultSet = ptmt.executeQuery();
+					achouResultado = false;
+					while (resultSet.next()) {
+						achouResultado = true;
+						artigo = resultSet.getString("artigo");					
+						vetorFrequenciaConceitos = incrementaFrequenciaVetorConceitos(vetorFrequenciaConceitos, artigo, 1.0);
+					}
+					if(achouResultado == false)
+						vetorFrequenciaConceitos = incrementaFrequenciaVetorConceitos(vetorFrequenciaConceitos, token, 1.0);
+				
+				} catch (SQLException e) {
+					e.getMessage();
+				}
+			}
+			return vetorFrequenciaConceitos;
+		} catch (SQLException e) {
+			e.getMessage();
+		} finally {
+			try {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+				if (ptmt != null) {
+					ptmt.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return vetorFrequenciaConceitos;
+	}
+
 
 	/**
 	 * Incrementa a frequencia de um conceito dentro do hash contendo as frequencias
@@ -415,10 +470,10 @@ public class PalavraDAO {
 			// Obtem contagem atual
 			Double contador = vetorFrequenciaConceitos.get(artigo);
 			// Incrementa a contagem
-			vetorFrequenciaConceitos.put(artigo, contador + (1 * tfidf));
+			vetorFrequenciaConceitos.put(artigo, contador + 1.0);
 		} else
 			// Adiciona o novo conceito com contagem de 1
-			vetorFrequenciaConceitos.put(artigo, (1 * tfidf));
+			vetorFrequenciaConceitos.put(artigo, tfidf);
 		return vetorFrequenciaConceitos;
 	}
 }

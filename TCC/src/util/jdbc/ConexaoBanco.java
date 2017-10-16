@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class ConexaoBanco{
 	String driverClassName = "com.mysql.jdbc.Driver";
 	//String connectionUrl = "jdbc:postgresql://200.134.10.32:5432/1364987_LucasF";String dbUser = "m0n0p0ly";String dbPwd = "#n0m0n3y#";
-	String connectionUrl = "jdbc:postgresql://localhost:5432/catho";
+	String connectionUrl = "jdbc:postgresql://localhost:5432/wikipedia";
 	String dbUser = "postgres";
 	String dbPwd = "postgres";
 	

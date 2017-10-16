@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import util.jdbc.ConexaoBanco;
@@ -27,15 +28,15 @@ public class ArtigoDAO {
 
     public void adicionarArtigo(Artigo artigo) {
         try {
-            String queryString = "INSERT INTO Artigo(title,text) VALUES(?,?)";
+            String queryString = "INSERT INTO Artigo(titulo,texto) VALUES(?,?)";
             connection = getConnection();
             ptmt = connection.prepareStatement(queryString);
-            ptmt.setString(1, artigo.getTitle());
-            ptmt.setString(2, artigo.getText());
+            ptmt.setString(1, artigo.getTitulo());
+            ptmt.setString(2, artigo.getTexto());
             ptmt.executeUpdate();
             System.out.println("Artigo ADICIONADO com sucesso.");
         } catch (SQLException e) {
-        	System.out.println("Erro SQL: Nao foi possivel adicionar o artigo. Já Existe.");
+        	System.out.println("Erro SQL: Nao foi possivel adicionar o artigo.");
             //e.printStackTrace();
         } finally {
             try {
@@ -55,11 +56,11 @@ public class ArtigoDAO {
 
     public void alterarArtigo(Artigo artigo) {
         try {
-            String queryString = "UPDATE Artigo SET text=?, title=? WHERE id=?";
+            String queryString = "UPDATE Artigo SET texto=?, titulo=? WHERE id=?";
             connection = getConnection();
             ptmt = connection.prepareStatement(queryString);
-            ptmt.setString(1, artigo.getText());
-            ptmt.setString(2, artigo.getTitle());
+            ptmt.setString(1, artigo.getTexto());
+            ptmt.setString(2, artigo.getTitulo());
             ptmt.setLong(3, artigo.getId());
             ptmt.executeUpdate();
             System.out.println("Artigo ALTERADO com sucesso.");
@@ -112,7 +113,7 @@ public class ArtigoDAO {
     public List<Artigo> selectAll() {
         List<Artigo> artigos = new ArrayList<Artigo>();
         try {
-            String queryString = "SELECT id, title, lower(text) AS text FROM Artigo";
+            String queryString = "SELECT id, titulo, lower(texto) AS texto FROM Artigo";
             connection = getConnection();
             ptmt = connection.prepareStatement(queryString);
             resultSet = ptmt.executeQuery();
@@ -121,8 +122,8 @@ public class ArtigoDAO {
             while (resultSet.next()) {     
             	artigo = new Artigo();
             	artigo.setId(resultSet.getLong("id"));
-                artigo.setTitle(resultSet.getString("title"));
-                artigo.setText(resultSet.getString("text"));
+                artigo.setTitulo(resultSet.getString("titulo"));
+                artigo.setTexto(resultSet.getString("texto"));
                 artigos.add(artigo);
             }
             return artigos;
@@ -148,19 +149,19 @@ public class ArtigoDAO {
         return artigos;
     }
 
-    public Artigo pesquisarArtigoPorTitulo(String title) {
+
+    
+    public Artigo pesquisarArtigoPorTitulo(String titulo) {
         Artigo artigo = new Artigo();
         try {
-            String queryString = "SELECT * FROM Artigo WHERE title=?";
+            String queryString = "SELECT * FROM artigo WHERE lower(titulo)=?";
             connection = getConnection();
             ptmt = connection.prepareStatement(queryString);
-            ptmt.setString(1, title);
+            ptmt.setString(1, titulo.toLowerCase());
             resultSet = ptmt.executeQuery();
-
-            while (resultSet.next()) {
-                
-                artigo.setTitle(resultSet.getString("title"));
-                artigo.setText(resultSet.getString("text"));
+            while (resultSet.next()) {                
+                artigo.setTitulo(resultSet.getString("titulo"));
+                artigo.setTexto(resultSet.getString("texto"));
             }
             return artigo;
         } catch (SQLException e) {
@@ -183,6 +184,43 @@ public class ArtigoDAO {
             }
         }
         return artigo;
+    }
+    
+    public HashMap<String, Double> procurarTodosTitulosRelacionados(List<String> ngram) {
+    	HashMap<String, Double> vetorFrequenciaConceitos =  new HashMap<>();
+    	
+        try {	        
+	        connection = getConnection();
+	        for (int i = 0; i < ngram.size(); i++) {
+	        	String queryString = "SELECT * FROM artigo WHERE lower(titulo)=?";       		   			
+		        ptmt = connection.prepareStatement(queryString);            
+	            ptmt.setString(1, ngram.get(i).toLowerCase());                
+	            resultSet = ptmt.executeQuery();
+	            if(resultSet.next()) {                
+	            	vetorFrequenciaConceitos.put(resultSet.getString("titulo"), 1.0);
+            	}
+	        }    
+            return vetorFrequenciaConceitos;
+        } catch (SQLException e) {
+        	e.printStackTrace();
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (ptmt != null) {
+                    ptmt.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return vetorFrequenciaConceitos;
     }
 
 }
